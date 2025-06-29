@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: meditation_tracker_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: meditation_tracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_password
+    ports:
+      - '5440:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
