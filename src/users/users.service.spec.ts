@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ConflictException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '../entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,18 +19,8 @@ describe('UsersService', () => {
     update: jest.fn(),
   };
 
-  const mockUser = {
-    id: '123e4567-e89b-12d3-a456-426614174000',
-    username: 'testuser',
-    name: 'Test',
-    surname: 'User',
-    password: 'hashedpassword',
-    active: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
   beforeEach(async () => {
+    Object.values(mockRepository).forEach(fn => fn.mockReset && fn.mockReset());
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
@@ -49,7 +40,7 @@ describe('UsersService', () => {
   });
 
   describe('create', () => {
-    it('should create a new user', async () => {
+    it('should create a user successfully', async () => {
       const createUserDto: CreateUserDto = {
         username: 'testuser',
         name: 'Test',
@@ -57,77 +48,125 @@ describe('UsersService', () => {
         password: 'password123',
       };
 
-      mockRepository.create.mockReturnValue(mockUser);
-      mockRepository.save.mockResolvedValue(mockUser);
+      const user = { id: '1', ...createUserDto, active: true, createdAt: new Date(), updatedAt: new Date() };
+
+      mockRepository.findOne.mockResolvedValue(null);
+      mockRepository.create.mockReturnValue(user);
+      mockRepository.save.mockResolvedValue(user);
 
       const result = await service.create(createUserDto);
 
-      expect(repository.create).toHaveBeenCalledWith(createUserDto);
-      expect(repository.save).toHaveBeenCalledWith(mockUser);
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual(user);
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { username: createUserDto.username },
+      });
+      expect(mockRepository.create).toHaveBeenCalledWith(createUserDto);
+      expect(mockRepository.save).toHaveBeenCalledWith(user);
+    });
+
+    it('should throw ConflictException when username already exists', async () => {
+      const createUserDto: CreateUserDto = {
+        username: 'existinguser',
+        name: 'Test',
+        surname: 'User',
+        password: 'password123',
+      };
+
+      const existingUser = { id: '1', ...createUserDto, active: true, createdAt: new Date(), updatedAt: new Date() };
+
+      mockRepository.findOne.mockResolvedValue(existingUser);
+
+      await expect(service.create(createUserDto)).rejects.toThrow(
+        new ConflictException(`User with username '${createUserDto.username}' already exists`)
+      );
+
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { username: createUserDto.username },
+      });
     });
   });
 
   describe('findAll', () => {
-    it('should return an array of active users', async () => {
-      const users = [mockUser];
+    it('should return all active users', async () => {
+      const users = [
+        { id: '1', username: 'user1', name: 'User', surname: 'One', password: 'pass1', active: true, createdAt: new Date(), updatedAt: new Date() },
+        { id: '2', username: 'user2', name: 'User', surname: 'Two', password: 'pass2', active: true, createdAt: new Date(), updatedAt: new Date() },
+      ];
+
       mockRepository.find.mockResolvedValue(users);
 
       const result = await service.findAll();
 
-      expect(repository.find).toHaveBeenCalledWith({
+      expect(result).toEqual(users);
+      expect(mockRepository.find).toHaveBeenCalledWith({
         where: { active: true },
         relations: ['meditations', 'records'],
       });
-      expect(result).toEqual(users);
     });
   });
 
   describe('findOne', () => {
-    it('should return a single user', async () => {
-      const userId = '123e4567-e89b-12d3-a456-426614174000';
-      mockRepository.findOne.mockResolvedValue(mockUser);
+    it('should return a user by id', async () => {
+      const user = { id: '1', username: 'user1', name: 'User', surname: 'One', password: 'pass1', active: true, createdAt: new Date(), updatedAt: new Date() };
 
-      const result = await service.findOne(userId);
+      mockRepository.findOne.mockResolvedValue(user);
 
-      expect(repository.findOne).toHaveBeenCalledWith({
-        where: { id: userId, active: true },
+      const result = await service.findOne('1');
+
+      expect(result).toEqual(user);
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { id: '1', active: true },
         relations: ['meditations', 'records'],
       });
-      expect(result).toEqual(mockUser);
     });
   });
 
   describe('update', () => {
-    it('should update a user', async () => {
-      const userId = '123e4567-e89b-12d3-a456-426614174000';
+    it('should update a user successfully', async () => {
       const updateUserDto: UpdateUserDto = {
         name: 'Updated Name',
       };
 
-      const updatedUser = { ...mockUser, ...updateUserDto };
+      const updatedUser = { id: '1', username: 'user1', name: 'Updated Name', surname: 'One', password: 'pass1', active: true, createdAt: new Date(), updatedAt: new Date() };
+
+      mockRepository.findOne.mockReset();
+      mockRepository.findOne
+        .mockResolvedValueOnce(null) // Проверка на дубликат username
+        .mockImplementationOnce(() => updatedUser); // Возврат обновлённого пользователя
       mockRepository.update.mockResolvedValue({ affected: 1 });
-      mockRepository.findOne.mockResolvedValue(updatedUser);
 
-      const result = await service.update(userId, updateUserDto);
+      const result = await service.update('1', updateUserDto);
 
-      expect(repository.update).toHaveBeenCalledWith(userId, updateUserDto);
-      expect(repository.findOne).toHaveBeenCalledWith({
-        where: { id: userId, active: true },
-        relations: ['meditations', 'records'],
-      });
       expect(result).toEqual(updatedUser);
+      expect(mockRepository.update).toHaveBeenCalledWith('1', updateUserDto);
+    });
+
+    it('should throw ConflictException when updating to existing username', async () => {
+      const updateUserDto: UpdateUserDto = {
+        username: 'existinguser',
+      };
+
+      const existingUser = { id: '2', username: 'existinguser', name: 'User', surname: 'Two', password: 'pass2', active: true, createdAt: new Date(), updatedAt: new Date() };
+
+      mockRepository.findOne.mockResolvedValue(existingUser);
+
+      await expect(service.update('1', updateUserDto)).rejects.toThrow(
+        new ConflictException(`User with username '${updateUserDto.username}' already exists`)
+      );
+
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { username: updateUserDto.username, id: { $ne: '1' } as any },
+      });
     });
   });
 
   describe('remove', () => {
     it('should soft delete a user', async () => {
-      const userId = '123e4567-e89b-12d3-a456-426614174000';
       mockRepository.update.mockResolvedValue({ affected: 1 });
 
-      await service.remove(userId);
+      await service.remove('1');
 
-      expect(repository.update).toHaveBeenCalledWith(userId, { active: false });
+      expect(mockRepository.update).toHaveBeenCalledWith('1', { active: false });
     });
   });
 }); 

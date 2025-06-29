@@ -1,9 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { TypeOrmExceptionFilter } from './common/filters/typeorm-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Apply global exception filter for TypeORM errors
+  app.useGlobalFilters(new TypeOrmExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('Meditation Tracker API')
