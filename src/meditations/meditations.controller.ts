@@ -8,6 +8,7 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { MeditationsService } from './meditations.service';
@@ -43,8 +44,12 @@ export class MeditationsController {
   @ApiParam({ name: 'id', description: 'Meditation ID' })
   @ApiResponse({ status: 200, description: 'Meditation found' })
   @ApiResponse({ status: 404, description: 'Meditation not found' })
-  findOne(@Param('id') id: string) {
-    return this.meditationsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const meditation = await this.meditationsService.findOne(id);
+    if (!meditation) {
+      throw new NotFoundException(`Meditation with ID '${id}' not found`);
+    }
+    return meditation;
   }
 
   @Get('user/:userId')
@@ -64,11 +69,18 @@ export class MeditationsController {
     status: 409,
     description: 'Meditation with this name already exists for this user',
   })
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateMeditationDto: UpdateMeditationDto,
   ) {
-    return this.meditationsService.update(id, updateMeditationDto);
+    const meditation = await this.meditationsService.update(
+      id,
+      updateMeditationDto,
+    );
+    if (!meditation) {
+      throw new NotFoundException(`Meditation with ID '${id}' not found`);
+    }
+    return meditation;
   }
 
   @Delete(':id')
@@ -77,7 +89,11 @@ export class MeditationsController {
   @ApiParam({ name: 'id', description: 'Meditation ID' })
   @ApiResponse({ status: 204, description: 'Meditation successfully deleted' })
   @ApiResponse({ status: 404, description: 'Meditation not found' })
-  remove(@Param('id') id: string) {
-    return this.meditationsService.remove(id);
+  async remove(@Param('id') id: string) {
+    const meditation = await this.meditationsService.findOne(id);
+    if (!meditation) {
+      throw new NotFoundException(`Meditation with ID '${id}' not found`);
+    }
+    await this.meditationsService.remove(id);
   }
 }

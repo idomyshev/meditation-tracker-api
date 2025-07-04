@@ -1,0 +1,440 @@
+{
+  "info": {
+    "name": "Meditation Tracker API",
+    "description": "API для отслеживания медитаций и прогресса пользователей",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Get Health Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Проверка статуса приложения и подключения к базе данных"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"john_doe\",\n  \"name\": \"John\",\n  \"surname\": \"Doe\",\n  \"password\": \"securepassword123\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Создание нового пользователя"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Получение списка всех активных пользователей"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123e4567-e89b-12d3-a456-426614174000",
+                  "description": "ID пользователя"
+                }
+              ]
+            },
+            "description": "Получение пользователя по ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"john_updated\",\n  \"name\": \"John Updated\",\n  \"surname\": \"Doe Updated\",\n  \"password\": \"newpassword123\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123e4567-e89b-12d3-a456-426614174000",
+                  "description": "ID пользователя"
+                }
+              ]
+            },
+            "description": "Обновление пользователя по ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123e4567-e89b-12d3-a456-426614174000",
+                  "description": "ID пользователя"
+                }
+              ]
+            },
+            "description": "Удаление пользователя (мягкое удаление)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Meditations",
+      "item": [
+        {
+          "name": "Create Meditation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"name\": \"Morning Mindfulness\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/meditations",
+              "host": ["{{baseUrl}}"],
+              "path": ["meditations"]
+            },
+            "description": "Создание новой сессии медитации"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Meditations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/meditations",
+              "host": ["{{baseUrl}}"],
+              "path": ["meditations"]
+            },
+            "description": "Получение всех сессий медитации"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Meditation by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/meditations/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["meditations", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123e4567-e89b-12d3-a456-426614174001",
+                  "description": "ID сессии медитации"
+                }
+              ]
+            },
+            "description": "Получение сессии медитации по ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Meditations by User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/meditations/user/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["meditations", "user", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "123e4567-e89b-12d3-a456-426614174000",
+                  "description": "ID пользователя"
+                }
+              ]
+            },
+            "description": "Получение сессий медитации пользователя"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Meditation",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"name\": \"Evening Mindfulness Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/meditations/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["meditations", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123e4567-e89b-12d3-a456-426614174001",
+                  "description": "ID сессии медитации"
+                }
+              ]
+            },
+            "description": "Обновление сессии медитации"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Meditation",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/meditations/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["meditations", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123e4567-e89b-12d3-a456-426614174001",
+                  "description": "ID сессии медитации"
+                }
+              ]
+            },
+            "description": "Удаление сессии медитации"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Records",
+      "item": [
+        {
+          "name": "Create Record",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"meditationId\": \"123e4567-e89b-12d3-a456-426614174001\",\n  \"value\": 15.5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/records",
+              "host": ["{{baseUrl}}"],
+              "path": ["records"]
+            },
+            "description": "Создание новой записи медитации"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Records",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/records",
+              "host": ["{{baseUrl}}"],
+              "path": ["records"]
+            },
+            "description": "Получение всех записей медитации"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Record by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/records/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["records", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123e4567-e89b-12d3-a456-426614174002",
+                  "description": "ID записи"
+                }
+              ]
+            },
+            "description": "Получение записи по ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Records by User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/records/user/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["records", "user", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "123e4567-e89b-12d3-a456-426614174000",
+                  "description": "ID пользователя"
+                }
+              ]
+            },
+            "description": "Получение записей пользователя"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Records by Meditation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/records/meditation/:meditationId",
+              "host": ["{{baseUrl}}"],
+              "path": ["records", "meditation", ":meditationId"],
+              "variable": [
+                {
+                  "key": "meditationId",
+                  "value": "123e4567-e89b-12d3-a456-426614174001",
+                  "description": "ID сессии медитации"
+                }
+              ]
+            },
+            "description": "Получение записей по сессии медитации"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Record",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"meditationId\": \"123e4567-e89b-12d3-a456-426614174001\",\n  \"value\": 20.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/records/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["records", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123e4567-e89b-12d3-a456-426614174002",
+                  "description": "ID записи"
+                }
+              ]
+            },
+            "description": "Обновление записи медитации"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Record",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/records/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["records", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123e4567-e89b-12d3-a456-426614174002",
+                  "description": "ID записи"
+                }
+              ]
+            },
+            "description": "Удаление записи медитации (мягкое удаление)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+} 
