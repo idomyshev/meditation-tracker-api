@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { MeditationsService } from './meditations.service';
 import { CreateMeditationDto } from './dto/create-meditation.dto';
@@ -13,7 +23,10 @@ export class MeditationsController {
   @ApiOperation({ summary: 'Create a new meditation session' })
   @ApiResponse({ status: 201, description: 'Meditation successfully created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 409, description: 'Meditation with this name already exists for this user' })
+  @ApiResponse({
+    status: 409,
+    description: 'Meditation with this name already exists for this user',
+  })
   create(@Body() createMeditationDto: CreateMeditationDto) {
     return this.meditationsService.create(createMeditationDto);
   }
@@ -47,8 +60,14 @@ export class MeditationsController {
   @ApiParam({ name: 'id', description: 'Meditation ID' })
   @ApiResponse({ status: 200, description: 'Meditation successfully updated' })
   @ApiResponse({ status: 404, description: 'Meditation not found' })
-  @ApiResponse({ status: 409, description: 'Meditation with this name already exists for this user' })
-  update(@Param('id') id: string, @Body() updateMeditationDto: UpdateMeditationDto) {
+  @ApiResponse({
+    status: 409,
+    description: 'Meditation with this name already exists for this user',
+  })
+  update(
+    @Param('id') id: string,
+    @Body() updateMeditationDto: UpdateMeditationDto,
+  ) {
     return this.meditationsService.update(id, updateMeditationDto);
   }
 
@@ -61,4 +80,4 @@ export class MeditationsController {
   remove(@Param('id') id: string) {
     return this.meditationsService.remove(id);
   }
-} 
+}

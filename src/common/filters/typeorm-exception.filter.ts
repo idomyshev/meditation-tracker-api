@@ -1,4 +1,9 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpStatus,
+} from '@nestjs/common';
 import { QueryFailedError } from 'typeorm';
 import { Response } from 'express';
 import { DuplicateEntityException } from '../exceptions/duplicate-entity.exception';
@@ -18,24 +23,25 @@ export class TypeOrmExceptionFilter implements ExceptionFilter {
     const driverError = exception.driverError as PostgresError;
     if (driverError?.code === '23505') {
       const detail = driverError.detail;
-      
+
       // Extract field name and value from the error detail
-      const match = detail.match(/Key \(([^)]+)\)=\(([^)]+)\) already exists\./);
-      
+      const match = detail.match(
+        /Key \(([^)]+)\)=\(([^)]+)\) already exists\./,
+      );
+
       if (match) {
         const fieldName = match[1];
         const fieldValue = match[2];
-        
+
         // Determine entity name based on the field
-        let entityName = 'Entity';
-        if (fieldName === 'username') {
-          entityName = 'User';
-        } else if (fieldName === 'name' && exception.query.includes('meditations')) {
-          entityName = 'Meditation';
-        }
-        
-        const duplicateException = new DuplicateEntityException(entityName, fieldName, fieldValue);
-        
+        const entityName = 'Entity';
+
+        const duplicateException = new DuplicateEntityException(
+          entityName,
+          fieldName,
+          fieldValue,
+        );
+
         return response.status(HttpStatus.CONFLICT).json({
           statusCode: HttpStatus.CONFLICT,
           message: duplicateException.message,
@@ -51,4 +57,4 @@ export class TypeOrmExceptionFilter implements ExceptionFilter {
       error: 'Internal Server Error',
     });
   }
-} 
+}
