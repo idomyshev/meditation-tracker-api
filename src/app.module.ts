@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { User, Meditation, Record } from './entities';
+import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { MeditationsModule } from './meditations/meditations.module';
 import { RecordsModule } from './records/records.module';
@@ -24,6 +25,7 @@ import { RecordsModule } from './records/records.module';
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
     }),
+    AuthModule,
     UsersModule,
     MeditationsModule,
     RecordsModule,

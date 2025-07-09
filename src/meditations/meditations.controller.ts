@@ -9,17 +9,20 @@ import {
   HttpCode,
   HttpStatus,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { MeditationsService } from './meditations.service';
 import { CreateMeditationDto } from './dto/create-meditation.dto';
 import { UpdateMeditationDto } from './dto/update-meditation.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('meditations')
 @Controller('meditations')
 export class MeditationsController {
   constructor(private readonly meditationsService: MeditationsService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   @ApiOperation({ summary: 'Create a new meditation session' })
   @ApiResponse({ status: 201, description: 'Meditation successfully created' })
@@ -28,22 +31,27 @@ export class MeditationsController {
     status: 409,
     description: 'Meditation with this name already exists for this user',
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   create(@Body() createMeditationDto: CreateMeditationDto) {
     return this.meditationsService.create(createMeditationDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOperation({ summary: 'Get all meditation sessions' })
   @ApiResponse({ status: 200, description: 'List of all meditation sessions' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   findAll() {
     return this.meditationsService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Get meditation session by ID' })
   @ApiParam({ name: 'id', description: 'Meditation ID' })
   @ApiResponse({ status: 200, description: 'Meditation found' })
   @ApiResponse({ status: 404, description: 'Meditation not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findOne(@Param('id') id: string) {
     const meditation = await this.meditationsService.findOne(id);
     if (!meditation) {
@@ -52,14 +60,17 @@ export class MeditationsController {
     return meditation;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('user/:userId')
   @ApiOperation({ summary: 'Get meditation sessions by user ID' })
   @ApiParam({ name: 'userId', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'List of user meditation sessions' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   findByUser(@Param('userId') userId: string) {
     return this.meditationsService.findByUser(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   @ApiOperation({ summary: 'Update meditation session by ID' })
   @ApiParam({ name: 'id', description: 'Meditation ID' })
@@ -69,6 +80,7 @@ export class MeditationsController {
     status: 409,
     description: 'Meditation with this name already exists for this user',
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async update(
     @Param('id') id: string,
     @Body() updateMeditationDto: UpdateMeditationDto,
@@ -83,12 +95,14 @@ export class MeditationsController {
     return meditation;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete meditation session by ID' })
   @ApiParam({ name: 'id', description: 'Meditation ID' })
   @ApiResponse({ status: 204, description: 'Meditation successfully deleted' })
   @ApiResponse({ status: 404, description: 'Meditation not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async remove(@Param('id') id: string) {
     const meditation = await this.meditationsService.findOne(id);
     if (!meditation) {

@@ -9,6 +9,16 @@
       "key": "baseUrl",
       "value": "http://localhost:3000",
       "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -32,10 +42,10 @@
       ]
     },
     {
-      "name": "Users",
+      "name": "Authentication",
       "item": [
         {
-          "name": "Create User",
+          "name": "Create User (Registration)",
           "request": {
             "method": "POST",
             "header": [
@@ -53,15 +63,90 @@
               "host": ["{{baseUrl}}"],
               "path": ["users"]
             },
-            "description": "Создание нового пользователя"
+            "description": "Создание нового пользователя (регистрация)"
           },
           "response": []
         },
         {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"john_doe\",\n  \"password\": \"securepassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Вход в систему. Возвращает access_token и refresh_token"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Обновление access token с помощью refresh token"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            },
+            "description": "Получение профиля текущего пользователя"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
           "name": "Get All Users",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/users",
               "host": ["{{baseUrl}}"],
@@ -75,7 +160,12 @@
           "name": "Get User by ID",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/users/:id",
               "host": ["{{baseUrl}}"],
@@ -100,6 +190,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {
@@ -126,7 +220,12 @@
           "name": "Delete User",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/users/:id",
               "host": ["{{baseUrl}}"],
@@ -156,6 +255,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {
@@ -175,7 +278,12 @@
           "name": "Get All Meditations",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/meditations",
               "host": ["{{baseUrl}}"],
@@ -189,7 +297,12 @@
           "name": "Get Meditation by ID",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/meditations/:id",
               "host": ["{{baseUrl}}"],
@@ -210,7 +323,12 @@
           "name": "Get Meditations by User",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/meditations/user/:userId",
               "host": ["{{baseUrl}}"],
@@ -235,11 +353,15 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"name\": \"Evening Mindfulness Updated\"\n}"
+              "raw": "{\n  \"name\": \"Evening Mindfulness Updated\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/meditations/:id",
@@ -261,7 +383,12 @@
           "name": "Delete Meditation",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/meditations/:id",
               "host": ["{{baseUrl}}"],
@@ -291,6 +418,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {
@@ -310,7 +441,12 @@
           "name": "Get All Records",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/records",
               "host": ["{{baseUrl}}"],
@@ -324,7 +460,12 @@
           "name": "Get Record by ID",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/records/:id",
               "host": ["{{baseUrl}}"],
@@ -345,7 +486,12 @@
           "name": "Get Records by User",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/records/user/:userId",
               "host": ["{{baseUrl}}"],
@@ -366,7 +512,12 @@
           "name": "Get Records by Meditation",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/records/meditation/:meditationId",
               "host": ["{{baseUrl}}"],
@@ -391,6 +542,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {
@@ -417,7 +572,12 @@
           "name": "Delete Record",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/records/:id",
               "host": ["{{baseUrl}}"],
