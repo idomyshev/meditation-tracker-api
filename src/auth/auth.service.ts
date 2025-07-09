@@ -2,17 +2,18 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
+import { User } from 'src/entities';
 
 export interface UserPayload {
   username: string;
-  sub: number;
+  sub: string;
 }
 
 export interface LoginResponse {
   access_token: string;
   refresh_token: string;
   user: {
-    id: number;
+    id: string;
     username: string;
     name: string;
     surname: string;
@@ -26,9 +27,13 @@ export class AuthService {
     private usersService: UsersService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<Omit<User, 'password'> | null> {
     const user = await this.usersService.findByUsername(username);
     if (user && (await bcrypt.compare(password, user.password))) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       return result;
     }
@@ -36,14 +41,14 @@ export class AuthService {
   }
 
   login(user: {
-    id: number;
+    id: string;
     username: string;
     name: string;
     surname: string;
   }): LoginResponse {
     const payload: UserPayload = {
       username: user.username,
-      sub: Number(user.id),
+      sub: user.id,
     };
 
     return {
@@ -60,7 +65,7 @@ export class AuthService {
 
   async refreshToken(refreshToken: string) {
     try {
-      const payload = this.jwtService.verify(refreshToken);
+      const payload = this.jwtService.verify<UserPayload>(refreshToken);
       const user = await this.usersService.findOne(payload.sub);
 
       if (!user) {
@@ -69,7 +74,7 @@ export class AuthService {
 
       const newPayload: UserPayload = {
         username: user.username,
-        sub: Number(user.id),
+        sub: user.id,
       };
 
       return {
