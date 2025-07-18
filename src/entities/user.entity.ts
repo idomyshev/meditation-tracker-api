@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { Meditation } from './meditation.entity';
 import { Record } from './record.entity';
 
@@ -12,6 +19,9 @@ export class User {
 
   @Column({ unique: true })
   username: string;
+
+  @Column({ unique: true })
+  email: string;
 
   @Column()
   name: string;
@@ -28,9 +38,9 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Meditation, meditation => meditation.user)
+  @OneToMany(() => Meditation, (meditation) => meditation.user)
   meditations: Meditation[];
 
-  @OneToMany(() => Record, record => record.user)
+  @OneToMany(() => Record, (record) => record.user)
   records: Record[];
-} 
+}

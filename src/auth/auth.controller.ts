@@ -16,15 +16,21 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Post('login')
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, description: 'Login successful' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto) {
+    if (!loginDto.username && !loginDto.email) {
+      throw new UnauthorizedException(
+        'Either username or email must be provided',
+      );
+    }
+
     const user = await this.authService.validateUser(
-      loginDto.username,
+      (loginDto.email || loginDto.username) ?? '',
       loginDto.password,
     );
 

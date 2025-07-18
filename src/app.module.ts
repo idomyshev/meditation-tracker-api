@@ -22,7 +22,7 @@ import { RecordsModule } from './records/records.module';
       password: process.env.DB_PASSWORD || 'password',
       database: process.env.DB_NAME || 'meditation_tracker',
       entities: [User, Meditation, Record],
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: false,
       logging: process.env.NODE_ENV === 'development',
     }),
     AuthModule,
@@ -33,4 +33,6 @@ import { RecordsModule } from './records/records.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  //
+}

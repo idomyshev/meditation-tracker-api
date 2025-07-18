@@ -25,13 +25,24 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private usersService: UsersService,
-  ) {}
+  ) { }
 
   async validateUser(
-    username: string,
+    usernameOrEmail: string,
     password: string,
   ): Promise<Omit<User, 'password'> | null> {
-    const user = await this.usersService.findByUsername(username);
+    let user: User | null = null;
+
+    // Пробуем найти пользователя по email
+    if (usernameOrEmail.includes('@')) {
+      user = await this.usersService.findByEmail(usernameOrEmail);
+    }
+
+    // Если пользователь не найден по email, ищем по username
+    if (!user) {
+      user = await this.usersService.findByUsername(usernameOrEmail);
+    }
+
     if (user && (await bcrypt.compare(password, user.password))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
@@ -43,6 +54,7 @@ export class AuthService {
   login(user: {
     id: string;
     username: string;
+    email: string;
     name: string;
     surname: string;
   }): LoginResponse {

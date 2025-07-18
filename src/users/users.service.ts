@@ -11,7 +11,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     // Check if user with this username already exists
@@ -75,6 +75,12 @@ export class UsersService {
   async findByUsername(username: string): Promise<User | null> {
     return await this.usersRepository.findOne({
       where: { username, active: true },
+    });
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.usersRepository.findOne({
+      where: { email, active: true },
     });
   }
 
