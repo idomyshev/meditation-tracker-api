@@ -29,23 +29,21 @@ export class AuthService {
 
   async validateUser(
     usernameOrEmail: string,
+    byEmail: boolean,
     password: string,
   ): Promise<Omit<User, 'password'> | null> {
     let user: User | null = null;
 
-    // Пробуем найти пользователя по email
-    if (usernameOrEmail.includes('@')) {
+    if (byEmail) {
       user = await this.usersService.findByEmail(usernameOrEmail);
-    }
-
-    // Если пользователь не найден по email, ищем по username
-    if (!user) {
+    } else {
       user = await this.usersService.findByUsername(usernameOrEmail);
     }
 
     if (user && (await bcrypt.compare(password, user.password))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
+      const { password: _, ...result } = user;
+      console.log('Validated user result:', result);
       return result;
     }
     return null;

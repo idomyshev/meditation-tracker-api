@@ -6,31 +6,41 @@ import {
   UseGuards,
   Request,
   UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { UsersService } from '../users/users.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) { }
 
   @Post('login')
-  @ApiOperation({ summary: 'User login' })
+  @ApiOperation({ summary: 'Login user' })
   @ApiResponse({ status: 200, description: 'Login successful' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto) {
-    if (!loginDto.username && !loginDto.email) {
+    console.log('Login attempt with:', loginDto);
+    const byEmail = !!loginDto.email;
+    const usernameOrEmail = byEmail ? loginDto.email : loginDto.username;
+
+    if (!usernameOrEmail) {
       throw new UnauthorizedException(
         'Either username or email must be provided',
       );
     }
 
     const user = await this.authService.validateUser(
-      (loginDto.email || loginDto.username) ?? '',
+      usernameOrEmail,
+      !!loginDto.email,
       loginDto.password,
     );
 
@@ -38,7 +48,10 @@ export class AuthController {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.authService.login(user);
+    console.log('Validated user:', user);
+    const result = await this.authService.login(user);
+    console.log('Login result:', result);
+    return result;
   }
 
   @Post('refresh')
@@ -54,7 +67,18 @@ export class AuthController {
   @ApiOperation({ summary: 'Get user profile' })
   @ApiResponse({ status: 200, description: 'User profile retrieved' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  getProfile(@Request() req) {
-    return req.user;
+  async getProfile(
+    @Request() req: { user: { userId: string; username: string } },
+  ) {
+    console.log('User from token:', req.user);
+
+    if (!req.user?.userId) {
+      throw new NotFoundException('User not found');
+    }
+    const user = await this.usersService.findOne(req.user.userId);
+    console.log('User from database:', user);
+    const result = { ...user };
+    delete result.password;
+    return result;
   }
 }
