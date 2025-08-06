@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities';
+import { UsersService } from '../users/users.service';
 
-export interface UserPayload {
+export interface JwtTokenPayload {
   username: string;
   sub: string;
 }
@@ -25,11 +25,11 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private usersService: UsersService,
-  ) { }
+  ) {}
 
   async validateUser(
-    usernameOrEmail: string,
     byEmail: boolean,
+    usernameOrEmail: string,
     password: string,
   ): Promise<Omit<User, 'password'> | null> {
     let user: User | null = null;
@@ -43,9 +43,10 @@ export class AuthService {
     if (user && (await bcrypt.compare(password, user.password))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: _, ...result } = user;
-      console.log('Validated user result:', result);
+
       return result;
     }
+
     return null;
   }
 
@@ -56,7 +57,7 @@ export class AuthService {
     name: string;
     surname: string;
   }): LoginResponse {
-    const payload: UserPayload = {
+    const payload: JwtTokenPayload = {
       username: user.username,
       sub: user.id,
     };
@@ -75,14 +76,14 @@ export class AuthService {
 
   async refreshToken(refreshToken: string) {
     try {
-      const payload = this.jwtService.verify<UserPayload>(refreshToken);
+      const payload = this.jwtService.verify<JwtTokenPayload>(refreshToken);
       const user = await this.usersService.findOne(payload.sub);
 
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
 
-      const newPayload: UserPayload = {
+      const newPayload: JwtTokenPayload = {
         username: user.username,
         sub: user.id,
       };

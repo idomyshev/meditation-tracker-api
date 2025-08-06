@@ -1,19 +1,19 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
   Get,
-  UseGuards,
+  NotFoundException,
+  Post,
   Request,
   UnauthorizedException,
-  NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { UsersService } from '../users/users.service';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -21,14 +21,13 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
-  ) { }
+  ) {}
 
   @Post('login')
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({ status: 200, description: 'Login successful' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto) {
-    console.log('Login attempt with:', loginDto);
     const byEmail = !!loginDto.email;
     const usernameOrEmail = byEmail ? loginDto.email : loginDto.username;
 
@@ -39,8 +38,8 @@ export class AuthController {
     }
 
     const user = await this.authService.validateUser(
+      byEmail,
       usernameOrEmail,
-      !!loginDto.email,
       loginDto.password,
     );
 
@@ -48,10 +47,7 @@ export class AuthController {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    console.log('Validated user:', user);
-    const result = await this.authService.login(user);
-    console.log('Login result:', result);
-    return result;
+    return this.authService.login(user);
   }
 
   @Post('refresh')
