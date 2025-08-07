@@ -66,15 +66,19 @@ export class AuthController {
   async getProfile(
     @Request() req: { user: { userId: string; username: string } },
   ) {
-    console.log('User from token:', req.user);
-
     if (!req.user?.userId) {
       throw new NotFoundException('User not found');
     }
+
     const user = await this.usersService.findOne(req.user.userId);
-    console.log('User from database:', user);
-    const result = { ...user };
-    delete result.password;
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...result } = user;
+
     return result;
   }
 }
