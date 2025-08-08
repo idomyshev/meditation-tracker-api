@@ -1,6 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { User } from './user.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Meditation } from './meditation.entity';
+import { User } from './user.entity';
 
 @Entity('records')
 export class Record {
@@ -25,11 +33,11 @@ export class Record {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => User, user => user.records)
+  @ManyToOne(() => User, (user) => user.records)
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @ManyToOne(() => Meditation, meditation => meditation.records)
+  @ManyToOne(() => Meditation, (meditation) => meditation.records)
   @JoinColumn({ name: 'meditationId' })
   meditation: Meditation;
-} 
+}

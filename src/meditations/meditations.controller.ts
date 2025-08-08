@@ -1,21 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
-  Put,
+  Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   NotFoundException,
+  Param,
+  Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { MeditationsService } from './meditations.service';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateMeditationDto } from './dto/create-meditation.dto';
 import { UpdateMeditationDto } from './dto/update-meditation.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { MeditationsService } from './meditations.service';
 
 @ApiTags('meditations')
 @Controller('meditations')

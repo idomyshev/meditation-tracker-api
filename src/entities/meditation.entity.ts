@@ -1,6 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
-import { User } from './user.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Record } from './record.entity';
+import { User } from './user.entity';
 
 @Entity('meditations')
 export class Meditation {
@@ -19,10 +28,10 @@ export class Meditation {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => User, user => user.meditations)
+  @ManyToOne(() => User, (user) => user.meditations)
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @OneToMany(() => Record, record => record.meditation)
+  @OneToMany(() => Record, (record) => record.meditation)
   records: Record[];
-} 
+}

@@ -1,10 +1,10 @@
 import {
-  Injectable,
   ConflictException,
+  Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Meditation } from '../entities/meditation.entity';
 import { User } from '../entities/user.entity';
 import { CreateMeditationDto } from './dto/create-meditation.dto';
