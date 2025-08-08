@@ -8,3 +8,9 @@ refresh.dto.ts RefreshDto
 auth.controller.ts refresh(), getProfile()
 auth.service.ts refreshToken()
 
+8 Aug 2025
+entities:
+    meditation.entity.ts
+    record.entity.ts
+    user.entity.ts
+
