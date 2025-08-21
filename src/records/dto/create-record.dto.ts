@@ -1,22 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, IsUUID } from 'class-validator';
 
 export class CreateRecordDto {
-  @ApiProperty({
-    description: 'ID of the user who created this record',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  userId: string;
-
   @ApiProperty({
     description: 'ID of the meditation session',
     example: '123e4567-e89b-12d3-a456-426614174001',
   })
+  @IsUUID()
   meditationId: string;
 
   @ApiProperty({
-    description: 'Duration of meditation in minutes',
-    example: 15.5,
+    description: 'Number of repetitions made during meditation session',
+    example: 108,
     type: 'number',
   })
+  @IsNumber()
   value: number;
-} 
+}

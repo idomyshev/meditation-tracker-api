@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Meditation } from '../entities/meditation.entity';
 import { Record } from '../entities/record.entity';
 import { User } from '../entities/user.entity';
-import { Meditation } from '../entities/meditation.entity';
 import { CreateRecordDto } from './dto/create-record.dto';
 import { UpdateRecordDto } from './dto/update-record.dto';
 
@@ -18,16 +18,17 @@ export class RecordsService {
     private meditationsRepository: Repository<Meditation>,
   ) {}
 
-  async create(createRecordDto: CreateRecordDto): Promise<Record> {
+  async create(
+    createRecordDto: CreateRecordDto,
+    userId: string,
+  ): Promise<Record> {
     // Check if user exists
     const user = await this.usersRepository.findOne({
-      where: { id: createRecordDto.userId, active: true },
+      where: { id: userId, active: true },
     });
 
     if (!user) {
-      throw new NotFoundException(
-        `User with ID '${createRecordDto.userId}' not found`,
-      );
+      throw new NotFoundException(`User with ID '${userId}' not found`);
     }
 
     // Check if meditation exists
@@ -41,7 +42,10 @@ export class RecordsService {
       );
     }
 
-    const record = this.recordsRepository.create(createRecordDto);
+    const record = this.recordsRepository.create({
+      ...createRecordDto,
+      userId,
+    });
     return await this.recordsRepository.save(record);
   }
 

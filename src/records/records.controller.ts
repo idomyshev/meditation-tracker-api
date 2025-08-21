@@ -1,20 +1,22 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
-  Put,
+  Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Post,
+  Put,
+  Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { RecordsService } from './records.service';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AuthenticatedRequest } from '../users/types';
 import { CreateRecordDto } from './dto/create-record.dto';
 import { UpdateRecordDto } from './dto/update-record.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RecordsService } from './records.service';
 
 @ApiTags('records')
 @Controller('records')
@@ -27,8 +29,11 @@ export class RecordsController {
   @ApiResponse({ status: 201, description: 'Record successfully created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  create(@Body() createRecordDto: CreateRecordDto) {
-    return this.recordsService.create(createRecordDto);
+  create(
+    @Body() createRecordDto: CreateRecordDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.recordsService.create(createRecordDto, req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)

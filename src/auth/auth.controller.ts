@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthenticatedRequest } from '../users/types';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -63,9 +64,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Get user profile' })
   @ApiResponse({ status: 200, description: 'User profile retrieved' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getProfile(
-    @Request() req: { user: { userId: string; username: string } },
-  ) {
+  async getProfile(@Request() req: AuthenticatedRequest) {
     if (!req.user?.userId) {
       throw new NotFoundException('User not found');
     }

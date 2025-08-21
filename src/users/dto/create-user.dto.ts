@@ -32,4 +32,4 @@ export class CreateUserDto {
     default: true,
   })
   active?: boolean;
-} 
+}
